@@ -1,6 +1,8 @@
 var express=require("express")
 var app=express()
 const port = process.env.PORT;
+require('dotenv').config();
+const mongo_db_uri = process.env.MONGO_URI;
 
 
 //app.listen(7070,()=>{console.log("express server started at port 7070")})//when http and express servers are on diff ports , this line can be used
@@ -41,7 +43,7 @@ var io_server=socketIO(server)
 
 //db connection handling
 var mongoose=require("mongoose")
-mongoose.connect("mongodb+srv://vibha:m2YrHNZceNRPVg18@vibhas-cluster.kpczh.mongodb.net/userdetails?retryWrites=true&w=majority&appName=vibhas-cluster")
+mongoose.connect(mongo_db_uri)
 .then(()=>{console.log("connection successfully made to database")})
 .catch((err)=>{console.log("not connected to database :"+err)})
 

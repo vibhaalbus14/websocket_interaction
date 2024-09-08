@@ -7,9 +7,9 @@
   },
   "keywords": [],
   "author": "vibha",
-  "license": "ISC", 
+  "license": "ISC",
   "description": "web socket app",
-  "dependencies":{
+  "dependencies": {
     "cookie-parser": "1.4.6",
     "dotenv": "^16.4.5",
     "ejs": "3.1.10",
