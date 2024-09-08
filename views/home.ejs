@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+      crossorigin="anonymous"
+    />
+    <title>Chat Box</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Anton&family=Arsenal+SC:ital,wght@0,400;0,700;1,400;1,700&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&family=Sedgwick+Ave+Display&display=swap");
+
+      body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        margin: 0;
+        background: linear-gradient(135deg, #6ad7bd, #46a8a3);
+        font-family: "Poppins", sans-serif;
+        color: #333;
+      }
+
+      #greet {
+        font-family: "Anton", sans-serif;
+        font-weight: 700;
+        font-size: 2rem;
+        color: #3c3c3c;
+        margin-bottom: 20px;
+      }
+
+      .container {
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+        justify-content: space-between;
+        width: 80%;
+        max-width: 1200px;
+      }
+
+      .left-side {
+        flex: 60%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding-right: 20px; /* Space between left side and chat box */
+        height: 100%;
+      }
+
+      .right-side {
+        flex: 40%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .left-side input,
+      .left-side button {
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        padding: 10px;
+        width: 100%;
+        margin-bottom: 15px;
+      }
+
+      .left-side input {
+        border-color: #f95959;
+        transition: border-color 0.3s ease;
+      }
+
+      .left-side input:focus {
+        border-color: #f95959;
+        outline: none;
+      }
+
+      .left-side button {
+        background-color: #f95959;
+        color: #fff;
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+
+      .left-side button:hover {
+        background-color: #fe9999;
+      }
+
+      #messageContent {
+        border-color: #fe9999;
+        border-radius: 7px;
+        resize: vertical;
+        width: 100%;
+        height: 150px;
+        padding-bottom: 5px;
+      }
+
+      #submitBttn {
+        background-color: #f95959;
+        color: #fff;
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        margin-top: 15px;
+      }
+
+      #submitBttn:hover {
+        background-color: #fe9999;
+      }
+
+      #chatBox {
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        background-color: #ffffff;
+        overflow-y: scroll;
+        overflow-x: scroll;
+        height: 60vh;
+        width: 100%;
+        max-width: 600px;
+        padding: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        font-family: "Roboto", sans-serif;
+        color: #333;
+      }
+
+      #navs {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="navs"><%- include ("common") %></div>
+
+    <h1 id="greet">It's chat time!!</h1>
+
+    <div class="container">
+      <div class="left-side">
+        <input
+          type="text"
+          placeholder="Username"
+          id="username"
+          autocomplete="off"
+        />
+        <button type="button" id="connectBttn">Connect</button>
+
+        <textarea
+          rows="4"
+          id="messageContent"
+          placeholder="Enter your message"
+        ></textarea>
+        <input type="submit" id="submitBttn" value="Submit" />
+      </div>
+
+      <div class="right-side">
+        <div id="chatBox"></div>
+      </div>
+    </div>
+
+    <script src="node_modules/socket.io/client-dist/socket.io.js"></script>
+    <script>
+      var client = io("ws://localhost:3000");
+
+      document.getElementById("connectBttn").addEventListener("click", () => {
+        client.on("connect", () => {
+          console.log("client connected to server");
+        });
+
+        var username = document.getElementById("username").value;
+
+        client.emit("registerName", JSON.stringify({ username: username }));
+
+        document
+          .getElementById("username")
+          .setAttribute("readonly", "readonly");
+        document
+          .getElementById("connectBttn")
+          .setAttribute("disabled", "disabled");
+      });
+
+      document.getElementById("submitBttn").addEventListener("click", () => {
+        var username = document.getElementById("username").value;
+        var message = document.getElementById("messageContent").value;
+        client.emit(
+          "chatDeliver",
+          JSON.stringify({ username: username, content: message })
+        );
+
+        document.getElementById("messageContent").value = "";
+        document.getElementById("messageContent").focus();
+      });
+
+      client.on("printInfo", (data) => {
+        data2 = JSON.parse(data);
+        document.getElementById("chatBox").innerHTML +=
+          "<span>" + data2.info + "</span><br>";
+      });
+    </script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>
