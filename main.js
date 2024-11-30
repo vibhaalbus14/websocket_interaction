@@ -1,6 +1,6 @@
 var express=require("express")
 var app=express()
-const port = process.env.PORT;
+const port = process.env.PORT || 8080;
 require('dotenv').config();
 const mongo_db_uri = process.env.MONGO_URI;
 
